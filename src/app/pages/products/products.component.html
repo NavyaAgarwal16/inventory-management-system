@@ -1,0 +1,770 @@
+<div class="products-page">
+
+  <!-- HEADER -->
+
+  <div class="products-header">
+
+    <h1>
+
+      Products Inventory
+
+    </h1>
+
+   <button
+  (click)="showAddProductPopup = true"
+>
+
+  + Add Product
+
+</button>
+
+  </div>
+
+  <!-- SEARCH -->
+
+ <div class="search-box">
+
+  <input
+    type="text"
+    placeholder="Search products..."
+    [(ngModel)]="searchText"
+    (focus)="showSearchFilters = true"
+    (keyup)="searchProducts()"
+  >
+
+  <div
+    class="filter-dropdown"
+    *ngIf="showSearchFilters"
+  >
+
+    <div
+      class="filter-item"
+      (click)="toggleFilter('Product Name')"
+    >
+
+      <input
+        type="checkbox"
+        [checked]="selectedFilters.includes('Product Name')"
+      >
+
+      Product Name
+
+    </div>
+
+    <div
+      class="filter-item"
+      (click)="toggleFilter('Product ID')"
+    >
+
+      <input
+        type="checkbox"
+        [checked]="selectedFilters.includes('Product ID')"
+      >
+
+      Product ID
+
+    </div>
+
+    <div
+      class="filter-item"
+      (click)="toggleFilter('Receiver Name')"
+    >
+
+      <input
+        type="checkbox"
+        [checked]="selectedFilters.includes('Receiver Name')"
+      >
+
+      Receiver Name
+
+    </div>
+
+    <div
+      class="filter-item"
+      (click)="toggleFilter('Receiver ID')"
+    >
+
+      <input
+        type="checkbox"
+        [checked]="selectedFilters.includes('Receiver ID')"
+      >
+
+      Receiver ID
+
+    </div>
+
+  </div>
+
+</div>
+
+<div class="analytics-grid">
+
+  <div class="analytics-card">
+
+    <h3>
+
+      Total Products
+
+    </h3>
+
+    <h1>
+
+      {{ totalProducts }}
+
+    </h1>
+
+  </div>
+
+  <div class="analytics-card">
+
+    <h3>
+
+      Low Stock Products
+
+    </h3>
+
+    <h1>
+
+      {{ lowStockProducts }}
+
+    </h1>
+
+  </div>
+
+  <div class="analytics-card">
+
+    <h3>
+
+      Total Inventory Cost
+
+    </h3>
+
+    <h1>
+
+      ₹ {{ totalInventoryCost }}
+
+    </h1>
+
+  </div>
+
+  <div class="analytics-card">
+
+    <h3>
+
+      Total Quantity
+
+    </h3>
+
+    <h1>
+
+      {{ totalQuantity }}
+
+    </h1>
+
+  </div>
+
+</div>
+
+
+  <!-- PRODUCTS GRID -->
+
+ <div class="products-grid">
+
+  <div
+    class="product-card"
+    *ngFor="let product of productsList"
+  >
+
+    <img
+      [src]="product.image"
+      alt="product"
+    >
+
+    <div class="product-content">
+
+      
+      <h2>
+
+        {{ product.productName }}
+
+      </h2>
+
+      <p>
+
+        Product ID:
+        {{ product.productId }}
+
+      </p>
+
+      <p>
+
+        Quantity:
+        {{ product.quantity }}
+
+      </p>
+
+      <span
+        [class.in-stock]="product.stockStatus === 'In Stock'"
+        [class.low-stock]="product.stockStatus === 'Low Stock'"
+      >
+
+        {{ product.stockStatus }}
+
+      </span>
+
+      <button
+  class="delete-btn"
+  (click)="deleteProduct(product._id)"
+>
+
+  Delete
+
+</button>
+
+<button
+  class="edit-btn"
+  (click)="editProduct(product)"
+>
+
+  Edit
+
+</button> 
+
+<button
+  class="history-btn"
+  (click)="openHistory(product)"
+>
+
+  View History
+
+</button>
+
+<button
+
+  type="button"
+
+  class="dispatch-btn"
+
+  (click)="openDispatchPopup(product)"
+
+>
+
+  Dispatch
+
+</button>
+
+    </div>
+
+  </div>
+
+</div>
+
+
+
+<!-- ADD PRODUCT POPUP -->
+
+<div
+  class="popup-overlay"
+  *ngIf="showAddProductPopup"
+>
+
+  <div class="popup-box">
+
+    <h2>
+
+      Add Product
+
+    </h2>
+
+    
+    <input
+      type="text"
+      placeholder="Product Name"
+      [(ngModel)]="productName"
+      (keyup)="generateProductId()"
+    >
+
+    <input
+    
+      type="text"
+      placeholder="Product ID*"
+      [(ngModel)]="productId"
+    >
+    <p class="error">
+
+  {{ productIdError }}
+
+</p>
+
+<label>
+
+      Quantity
+
+  </label>
+    <input
+      type="number"
+      placeholder="Quantity*"
+      [(ngModel)]="quantity"
+      (keyup)="calculateTotalCost()"
+      
+    >
+    <p class="error">
+
+  {{ quantityError }}
+
+</p>
+
+<label>
+
+      Low Stock Limit
+
+  </label>
+
+<input
+  type="number"
+  placeholder="Low Stock Limit"
+  [(ngModel)]="lowStockLimit"
+>
+
+<label>
+
+      Amount per unit 
+
+  </label>
+    <input
+      type="number"
+      placeholder="Amount*"
+      [(ngModel)]="amount"
+      (keyup)="calculateTotalCost()"
+    >
+    <p class="error">
+
+  {{ amountError }}
+
+</p>
+
+<label>
+
+      Total Cost
+
+  </label>
+  
+    <input
+      type="number"
+      placeholder="Total Cost"
+      [(value)]="totalCost"
+      readonly
+
+    >
+
+    <input
+      type="text"
+      placeholder="Image URL"
+      [(ngModel)]="image"
+    >
+
+    <button
+      (click)="addProduct()"
+    >
+
+      Save Product
+
+    </button>
+
+    <button
+      class="close-btn"
+      (click)="showAddProductPopup = false"
+    >
+
+      Close
+
+    </button>
+
+      </div>
+
+</div>
+
+    <!-- HISTORY POPUP -->
+
+<div
+  class="popup-overlay"
+  *ngIf="showHistoryPopup"
+>
+
+  <div class="popup-box">
+
+    <h2>
+
+      Inventory History
+
+    </h2>
+
+    <div
+      class="history-item"
+      *ngFor="let item of selectedProductHistory"
+    >
+
+      <p>
+
+        Action:
+        {{ item.action }}
+
+      </p>
+
+      <p>
+
+        Quantity:
+        {{ item.quantity }}
+
+      </p>
+
+      <p>
+
+        Date:
+        {{ item.date | date:'medium' }}
+
+      </p>
+
+    </div>
+
+    <button
+      class="close-btn"
+      (click)="showHistoryPopup = false"
+    >
+
+      Close
+
+    </button>
+
+  </div>
+
+</div>
+
+<div
+
+  class="popup-overlay"
+
+  *ngIf="showDispatchPopup"
+
+>
+
+  <div class="popup-box">
+
+    <h2>
+
+      Dispatch Product
+
+    </h2>
+
+    <h3 class="section-title">
+
+  Product Details
+
+</h3>
+
+<div class="calculation-box">
+
+  <label>
+
+    Product Name
+
+  </label>
+
+  <input
+
+    type="text"
+
+    [value]="selectedProduct?.productName"
+
+    [ngModel]="selectedProduct?.productName"
+
+    readonly
+
+  >
+
+</div>
+
+<div class="calculation-box">
+
+  <label>
+
+    Product ID
+
+  </label>
+
+  <input
+
+    type="text"
+
+    [value]="selectedProduct?.productId"
+
+    [ngModel]="selectedProduct?.productId"
+
+    readonly
+
+  >
+
+</div>
+
+
+<h3 class="section-title">
+
+  Customer Details
+
+</h3>
+
+<div class="dropdown-wrapper">
+
+  <input
+
+    type="text"
+
+    [(ngModel)]="dispatchReceiverName"
+
+    (input)="filterReceiverNames()"
+
+    placeholder="Enter Receiver Name"
+
+  />
+
+<p class="error-text">
+
+  {{ dispatchReceiverNameError }}
+
+</p>
+
+
+
+  <div
+
+    class="dropdown-list"
+
+    *ngIf="
+
+      showNameDropdown &&
+
+      filteredReceiverNames.length
+
+    "
+
+  >
+
+    <div
+
+      class="dropdown-item"
+
+      *ngFor="let receiver of filteredReceiverNames"
+
+      (click)="selectReceiverName(receiver)"
+
+    >
+
+      {{ receiver.name }}
+
+    </div>
+
+  </div>
+
+</div>
+
+<input
+
+  type="text"
+
+  [(ngModel)]="dispatchReceiverId"
+
+  placeholder="Auto Generated Receiver ID"
+
+  readonly
+
+/>
+
+<p class="error-text">
+
+  {{ dispatchReceiverIdError }}
+
+</p>
+
+
+<h3 class="section-title">
+
+  Dispatch Details
+
+</h3>
+
+<div class="calculation-box">
+
+  <label>
+
+    Quantity to Dispatch
+
+  </label>
+
+  <input
+
+    type="number"
+
+    placeholder="Enter Quantity"
+
+    [(ngModel)]="dispatchQuantity"
+
+    (ngModelChange)="calculateDispatchTotal()"
+
+  />
+
+  <p class="error-text">
+
+    {{ dispatchQuantityError }}
+
+  </p>
+
+</div>
+
+<div class="calculation-box">
+
+  <label>
+
+    Amount Per Unit
+
+  </label>
+
+  <input
+
+    type="number"
+
+    [ngModel]="dispatchAmount"
+
+    readonly
+
+  />
+
+</div>
+
+<div class="calculation-box">
+
+  <label>
+
+    Manufacturing Total Cost
+
+  </label>
+
+  <input
+
+    type="number"
+
+    [ngModel]="dispatchTotalCost"
+
+    readonly
+
+  />
+
+</div>
+
+<div class="calculation-box">
+
+  <label>
+
+    Selling Total Cost
+
+  </label>
+
+  <input
+
+    type="number"
+
+    placeholder="Enter Selling Total Cost"
+
+    [(ngModel)]="sellingTotalCost"
+
+    (ngModelChange)="calculateSellingMetrics()"
+
+  />
+
+</div>
+
+<h3 class="section-title">
+
+  Profit / Loss Analysis
+
+</h3>
+
+<div class="calculation-box">
+
+  <label>
+
+    Profit / Loss
+
+  </label>
+
+  <input
+
+    type="text"
+
+    [value]="
+
+      isProfit
+
+      ? '+ ₹ ' + profitLossAmount
+
+      : '- ₹ ' + profitLossAmount
+
+    "
+
+    [class.profit-field]="isProfit"
+
+    [class.loss-field]="!isProfit"
+
+    readonly
+
+  />
+
+</div>
+
+<div class="calculation-box">
+
+  <label>
+
+    New Selling Cost Per Unit
+
+  </label>
+
+  <input
+
+    type="number"
+
+    [ngModel]="newCostPerUnit"
+
+    readonly
+
+  />
+
+</div>
+
+
+    <button
+
+      (click)="dispatchProduct()"
+
+    >
+
+      Dispatch Product
+
+    </button>
+  
+
+    <button
+
+      class="close-btn"
+
+      (click)="showDispatchPopup = false"
+
+    >
+
+      Close
+
+    </button>
+
+  </div>
+
+</div>
+

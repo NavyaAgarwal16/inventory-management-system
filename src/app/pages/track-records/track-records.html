@@ -1,0 +1,1101 @@
+<div class="page-header">
+
+  <h1>Track Records</h1>
+  <p>
+    View product manufacturing and dispatch history
+
+  </p>
+
+</div>
+
+  <div class="search-options">
+
+    <button
+
+      [class.active]="selectedSection === 'products'"
+
+      (click)="selectedSection = 'products'"
+
+    >
+
+      Product History
+
+    </button>
+
+    <button
+
+      [class.active]="selectedSection === 'raw-materials'"
+
+      (click)="selectedSection = 'raw-materials'"
+
+    >
+
+      Raw Material History
+
+    </button>
+
+  </div>
+
+  <button class="export-btn" (click)="exportProductHistoryToExcel()" > Export Excel </button>
+
+ 
+  <div *ngIf="selectedSection === 'products'">
+
+
+<div class="toolbar-card">
+
+  
+    <div class="controls">
+
+  <!--HISTORY TYPE-->
+
+  <div class="history-type">
+
+ 
+  <select
+    [(ngModel)]="productHistoryFilter"
+    (change)="showProductHistory()"
+  >
+  
+ 
+
+    <option value="Both">
+
+      All Records
+
+    </option>
+
+    <option value="Manufactured">
+
+      Manufactured
+
+    </option>
+
+    <option value="Dispatched">
+
+      Dispatched
+
+    </option>
+
+  </select>
+
+</div>
+
+
+    
+  <!--SORT-->
+
+<select
+
+  [(ngModel)]="productSortBy"
+
+  (change)="applyProductSort()"
+
+>
+
+  <option value="">
+
+    Sort By
+
+  </option>
+
+  <option value="name-asc">
+
+    Product Name A-Z
+
+  </option>
+
+  <option value="name-desc">
+
+    Product Name Z-A
+
+  </option>
+
+  <option value="date-new">
+
+    Date Newest
+
+  </option>
+
+  <option value="date-old">
+
+    Date Oldest
+
+  </option>
+
+</select>
+
+  <!-- FILTER-->
+<select
+
+  [(ngModel)]="productFilterBy"
+
+  (change)="applyProductFilter()"
+
+>
+
+  <option value="">
+
+    Filter By
+
+  </option>
+
+  <option value="amount-low">
+
+    Amount Low to High
+
+  </option>
+
+  <option value="amount-high">
+
+    Amount High to Low
+
+  </option>
+
+  <option value="stock-high">
+
+    High Stock First
+
+  </option>
+
+  <option value="stock-low">
+
+    Low Stock First
+
+  </option>
+
+</select>
+
+<div class="date-group">
+
+  <label> From: </label>
+
+  <input
+    type="date"
+    [(ngModel)]="fromDate"
+  >
+
+</div>
+
+<div class="date-group">
+
+  <label> To: </label>
+
+  <input
+    type="date"
+    [(ngModel)]="toDate"
+  >
+
+</div>
+
+ <div class="search-box">
+
+  <span class="search-icon">
+
+    🔍
+
+  </span>
+
+  <input
+    type="text"
+    placeholder="Search Product ID / Name"
+    [(ngModel)]="searchText"
+  >
+
+</div>
+
+
+    </div>
+</div>
+
+  <!-- HISTORY SUMMARY-->
+
+    <div class="history-summary">
+
+  <div class="summary-card">
+
+    <h4>Total Records</h4>
+
+    <p>
+
+      {{ totalRecords }}
+
+    </p>
+
+  </div>
+
+  <div class="summary-card">
+
+    <h4>Manufactured</h4>
+
+    <p>
+
+      {{ manufacturedCount }}
+
+    </p>
+
+  </div>
+
+  <div class="summary-card">
+
+    <h4>Dispatched</h4>
+
+    <p>
+
+      {{ dispatchedCount }}
+
+    </p>
+
+  </div>
+
+  <div class="summary-card">
+
+    <h4>Low Stock</h4>
+
+    <p>
+
+      {{ lowStockCount }}
+
+    </p>
+
+  </div>
+
+</div>
+
+
+  <!-- PRODUCT HISTORY  MANUFACTURED-->
+
+<div
+
+  class="table-container"
+
+  *ngIf="productHistoryFilter === 'Manufactured'"
+
+>
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>Date</th>
+
+        <th>Product Name</th>
+
+        <th>Product ID</th>
+
+        <th>Action</th>
+
+        <th>Quantity</th>
+
+        <th>Amount</th>
+
+        <th>Total Cost</th>
+
+        <th>Stock Level</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr
+
+        *ngFor="let item of paginatedProductHistory"
+
+      >
+
+        <ng-container
+
+          *ngIf="item.action === 'Manufactured'"
+
+        >
+
+          <td>
+
+            {{ item.date | date:'medium' }}
+
+          </td>
+
+          <td>
+
+            {{ item.productName }}
+
+          </td>
+
+          <td>
+
+            {{ item.productId }}
+
+          </td>
+
+          <td>
+
+  <span
+
+    [class.action-manufactured]="
+      item.action === 'Manufactured'
+    "
+
+    [class.action-dispatched]="
+      item.action === 'Dispatched'
+    "
+
+  >
+
+    {{ item.action }}
+
+  </span>
+
+</td>
+
+          <td>
+
+            {{ item.quantity }}
+
+          </td>
+
+          <td>
+
+            ₹ {{ item.amount }}
+
+          </td>
+
+          <td>
+
+            ₹ {{ item.totalCost }}
+
+          </td>
+
+       <td>
+
+  <span
+
+    [class.stock-low]="
+      item.stockStatus === 'Low Stock'
+    "
+
+    [class.stock-good]="
+      item.stockStatus === 'In Stock'
+    "
+
+  >
+
+    {{ item.stockStatus }}
+
+  </span>
+
+</td>
+
+        </ng-container>
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+  <!-- PRODUCT HISTORY DISPATCHED-->
+
+<div
+
+  class="table-container"
+
+  *ngIf="productHistoryFilter === 'Dispatched'"
+
+>
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>Date</th>
+
+        <th>Product Name</th>
+
+        <th>Product ID</th>
+
+        <th>Receiver Name</th>
+
+        <th>Receiver ID</th>
+
+        <th>Quantity</th>
+
+        <th>Manufacturing Cost</th>
+
+        <th>Selling Total Cost</th>
+
+        <th>Profit / Loss</th>
+
+        <th>Stock Level</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr
+
+        *ngFor="let item of paginatedProductHistory"
+
+      >
+
+        <ng-container
+
+          *ngIf="item.action === 'Dispatched'"
+
+        >
+
+          <td>
+
+           {{ item.date | date:'dd MMM yyyy' }}
+
+<br>
+
+<small>
+
+  {{ item.date | date:'h:mm a' }}
+
+</small>
+
+          </td>
+
+          <td>
+
+            {{ item.productName }}
+
+          </td>
+
+          <td>
+
+            {{ item.productId }}
+
+          </td>
+
+          <td>
+
+            {{ item.receiverName }}
+
+          </td>
+
+          <td>
+
+            {{ item.receiverId }}
+
+          </td>
+
+          <td>
+
+            {{ item.quantity }}
+
+          </td>
+
+          <td>
+
+            ₹ {{ item.totalCost }}
+
+          </td>
+
+          <td>
+
+            ₹ {{ item.sellingTotalCost }}
+
+          </td>
+
+          <td
+
+            [style.color]="
+
+              item.isProfit
+
+              ? 'green'
+
+              : 'red'
+
+            "
+
+          >
+
+            {{
+
+              item.isProfit
+
+              ? '+ ₹ '
+
+              : '- ₹ '
+
+            }}
+
+            {{ item.profitLossAmount }}
+
+          </td>
+
+         <td>
+
+  <span
+
+    [class.stock-low]="
+      item.stockStatus === 'Low Stock'
+    "
+
+    [class.stock-good]="
+      item.stockStatus === 'In Stock'
+    "
+
+  >
+
+    {{ item.stockStatus }}
+
+  </span>
+
+</td>
+
+        </ng-container>
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+
+  <!-- PRODUCT HISTORY BOTH -->
+
+<div
+
+  class="table-container"
+
+  *ngIf="productHistoryFilter === 'Both'"
+
+>
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>Date</th>
+
+        <th>Product Name</th>
+
+        <th>Product ID</th>
+
+        <th>Receiver Name</th>
+
+        <th>Receiver ID</th>
+
+        <th>Action</th>
+
+        <th>Quantity</th>
+
+        <th>Amount</th>
+
+        <th>Total Cost</th>
+
+        <th>Selling Total Cost</th>
+
+        <th>Profit / Loss</th>
+
+        <th>Stock Level</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr
+
+        *ngFor="let item of paginatedProductHistory"
+
+      >
+
+        <td>
+
+         {{ item.date | date:'dd MMM yyyy' }}
+
+<br>
+
+<small>
+
+  {{ item.date | date:'h:mm a' }}
+
+</small>
+
+        </td>
+
+        <td>
+
+          {{ item.productName }}
+
+        </td>
+
+        <td>
+
+          {{ item.productId }}
+
+        </td>
+
+        <td>
+
+          {{ item.receiverName || '-' }}
+
+        </td>
+
+        <td>
+
+          {{ item.receiverId || '-' }}
+
+        </td>
+
+        <td>
+
+  <span
+
+    [class.action-manufactured]="
+      item.action === 'Manufactured'
+    "
+
+    [class.action-dispatched]="
+      item.action === 'Dispatched'
+    "
+
+  >
+
+    {{ item.action }}
+
+  </span>
+
+</td>
+
+        <td>
+
+          {{ item.quantity }}
+
+        </td>
+
+        <td>
+
+          ₹ {{ item.amount }}
+
+        </td>
+
+        <td>
+
+          ₹ {{ item.totalCost }}
+
+        </td>
+
+        <td>
+
+          ₹ {{ item.sellingTotalCost || '-' }}
+
+        </td>
+
+        <td
+
+          [style.color]="
+
+            item.isProfit
+
+            ? 'green'
+
+            : 'red'
+
+          "
+
+        >
+
+          <span
+
+            *ngIf="
+
+              item.profitLossAmount
+
+              !== undefined
+
+            "
+
+          >
+
+            {{
+
+              item.isProfit
+
+              ? '+ ₹ '
+
+              : '- ₹ '
+
+            }}
+
+            {{ item.profitLossAmount }}
+
+          </span>
+
+        </td>
+
+       <td>
+
+  <span
+
+    [class.stock-low]="
+      item.stockStatus === 'Low Stock'
+    "
+
+    [class.stock-good]="
+      item.stockStatus === 'In Stock'
+    "
+
+  >
+
+    {{ item.stockStatus }}
+
+  </span>
+
+</td>
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+
+
+  </div>
+
+  <!-- RAW MATERIAL HISTORY -->
+
+  <div *ngIf="selectedSection === 'raw-materials'">
+
+    <div class="filter-buttons">
+
+      <button
+
+        [class.active]="rawMaterialFilter === 'Purchased'"
+
+        (click)="rawMaterialFilter = 'Purchased'"
+
+      >
+
+        Purchased
+
+      </button>
+
+      <button
+
+        [class.active]="rawMaterialFilter === 'Used'"
+
+        (click)="rawMaterialFilter = 'Used'"
+
+      >
+
+        Used
+
+      </button>
+
+      <button
+
+        [class.active]="rawMaterialFilter === 'Both'"
+
+        (click)="rawMaterialFilter = 'Both'"
+
+      >
+
+        Both
+
+      </button>
+
+    </div>
+
+    <div class="controls">
+
+      <select [(ngModel)]="rawMaterialSortBy">
+
+        <option value="">
+
+          Sort By
+
+        </option>
+
+        <option>
+
+          Raw Material Name A-Z
+
+        </option>
+
+        <option>
+
+          Raw Material Name Z-A
+
+        </option>
+
+        <option>
+
+          Supplier Name
+
+        </option>
+
+        <option>
+
+          Supplier ID
+
+        </option>
+
+        <option>
+
+          Date Newest
+
+        </option>
+
+        <option>
+
+          Date Oldest
+
+        </option>
+
+      </select>
+
+      <select [(ngModel)]="rawMaterialFilterBy">
+
+        <option value="">
+
+          Filter By
+
+        </option>
+
+        <option>
+
+          Amount Low to High
+
+        </option>
+
+        <option>
+
+          Amount High to Low
+
+        </option>
+
+        <option>
+
+          High Stock First
+
+        </option>
+
+        <option>
+
+          Low Stock First
+
+        </option>
+
+      </select>
+
+    </div>
+
+    <div class="table-container">
+
+      <table>
+
+        <thead>
+
+          <tr>
+
+            <th>Date</th>
+
+            <th>Raw Material Name</th>
+
+            <th>Raw Material ID</th>
+
+            <th>Supplier Name</th>
+
+            <th>Supplier ID</th>
+
+            <th>Quantity</th>
+
+            <th>Amount</th>
+
+            <th>Stock Level</th>
+
+            <th>Total Cost</th>
+
+          </tr>
+
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let item of rawMaterialHistoryList">
+
+            <td>{{ item.rawMaterialName }}</td>
+
+            <td>{{ item.rawMaterialId }}</td>
+
+            <td>{{ item.supplierName }}</td>
+
+            <td>{{ item.supplierId }}</td>
+
+            {{ item.date | date:'dd MMM yyyy' }}
+
+<br>
+
+<small>
+
+  {{ item.date | date:'h:mm a' }}
+
+</small>
+
+            <td>
+
+              {{ item.quantity }}
+
+              /
+
+              ₹ {{ item.amount }}
+
+            </td>
+
+            <td>
+
+  <span
+
+    [class.stock-low]="
+      item.stockStatus === 'Low Stock'
+    "
+
+    [class.stock-good]="
+      item.stockStatus === 'In Stock'
+    "
+
+  >
+
+    {{ item.stockStatus }}
+
+  </span>
+
+</td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+
+  
+ <!-- PAGINATION-->
+
+<div class="pagination">
+
+  <button
+
+    class="page-arrow"
+
+    (click)="previousPage()"
+
+    [disabled]="currentPage === 1"
+
+  >
+
+    ‹
+
+  </button>
+
+  <ng-container
+
+    *ngFor="
+
+      let page
+
+      of getVisiblePages()
+
+    "
+
+  >
+
+    <button
+
+      *ngIf="page !== '...'"
+
+      class="page-number"
+
+      [class.active-page]="
+
+        currentPage === page
+
+      "
+
+      (click)="goToPage(+page)"
+
+    >
+
+      {{ page }}
+
+    </button>
+
+    <span
+
+      *ngIf="page === '...'"
+
+      class="page-dots"
+
+    >
+
+      ...
+
+    </span>
+
+  </ng-container>
+
+  <button
+
+    class="page-arrow"
+
+    (click)="nextPage()"
+
+    [disabled]="currentPage === totalPages"
+
+  >
+
+    ›
+
+  </button>
+
+  <div class="rows-per-page">
+
+    <label>
+
+      Rows Per Page
+
+    </label>
+
+    <input
+
+      type="number"
+
+      min="1"
+
+      [(ngModel)]="itemsPerPage"
+
+      (change)="changeItemsPerPage()"
+
+    >
+
+  </div>
+
+</div>

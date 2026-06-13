@@ -1,0 +1,198 @@
+<div class="container">
+  <div class="auth-box">
+
+    <div class="tabs">
+      <button
+        [class.active]="isLogin"
+        type="button"
+        (click)="
+          isLogin = true;
+          loginEmailError = '';
+          loginPasswordError = '';
+          loginBackendError = '';
+        "
+      >
+        Login
+      </button>
+
+      <button
+        [class.active]="!isLogin"
+        type="button"
+        (click)="
+          isLogin = false;
+          signupEmailError = '';
+          signupPasswordError = '';
+        "
+      >
+        Signup
+      </button>
+    </div>
+
+<!-- LOGIN FORM -->
+<div *ngIf="isLogin">
+
+  <h2>Login</h2>
+
+  <!-- EMAIL -->
+  <input
+    type="text"
+    placeholder="Email"
+    [(ngModel)]="loginEmail"
+    name="loginEmail"
+  >
+
+  <p class="error">
+    {{ loginEmailError }}
+  </p>
+
+<div class="password-box">
+
+  <input
+    [type]="showLoginPassword ? 'text' : 'password'"
+    placeholder="Password"
+    [(ngModel)]="loginPassword"
+    name="loginPassword"
+  >
+
+  <span
+    class="eye-icon"
+    (click)="showLoginPassword = !showLoginPassword"
+  >
+
+    {{ showLoginPassword ? '🙈' : '👁️' }}
+
+  </span>
+
+</div>
+
+  <p class="error">
+    {{ loginPasswordError }}
+  </p>
+
+  <!-- BACKEND ERROR -->
+  <p class="error">
+    {{ loginBackendError }}
+  </p>
+
+  <p
+  class="forgot-password"
+  (click)="showForgotPasswordPopup = true"
+>
+
+  Forgot Password?
+
+</p>
+
+  <button
+    type="button"
+    (click)="submit()"
+  >
+    Submit
+  </button>
+
+</div>
+
+    <!-- SIGNUP FORM -->
+    <div *ngIf="!isLogin">
+      <h2>Signup</h2>
+
+      <input
+        type="text"
+        placeholder="Name"
+        [(ngModel)]="signupName"
+      >
+
+      <input
+        type="email"
+        placeholder="Email"
+        [(ngModel)]="signupEmail"
+      >
+      <p
+  *ngIf="signupEmailError"
+  style="color:red; margin:4px 0 10px 0;"
+>
+  {{ signupEmailError }}
+</p>
+
+      <div class="password-box">
+
+        <input
+          [type]="showSignupPassword ? 'text' : 'password'"
+          placeholder="Password"
+          [(ngModel)]="signupPassword"
+        >
+
+        <span
+          class="eye-icon"
+          (click)="showSignupPassword = !showSignupPassword"
+        >
+
+          {{ showSignupPassword ? '🙈' : '👁️' }}
+
+        </span>
+
+      </div>
+      <p
+  *ngIf="signupPasswordError"
+  style="color:red; margin:4px 0 10px 0;"
+>
+  {{ signupPasswordError }}
+</p>
+
+      <button
+  type="button"
+  (click)="register()"
+  [disabled]="isRegisterLoading"
+>
+
+  {{ isRegisterLoading ? 'Sending OTP...' : 'Register' }}
+
+</button>
+    </div>
+
+<!-- OTP POPUP -->
+
+<div
+  class="otp-overlay"
+  *ngIf="showOtpPopup"
+>
+
+  <div class="otp-box">
+
+    <h2>OTP Verification</h2>
+
+    <input
+      type="text"
+      placeholder="Enter OTP"
+      [(ngModel)]="otp"
+    >
+
+    <button
+      type="button"
+      (click)="verifyOtp()"
+    >
+      Verify OTP
+    </button>
+
+    <p style="margin-top:15px;">
+
+  <span *ngIf="!canResendOtp">
+
+    Resend OTP in
+    {{ resendTimer }} sec
+
+  </span>
+
+</p>
+
+<button
+  type="button"
+  (click)="resendOtp()"
+  [disabled]="!canResendOtp"
+  style="margin-top:10px;"
+>
+
+  Resend OTP
+
+</button>
+  

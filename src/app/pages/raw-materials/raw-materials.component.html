@@ -1,0 +1,157 @@
+<div class="raw-materials-page">
+
+  <!-- HEADER -->
+
+  <div class="raw-materials-header">
+
+    <h1>
+      Raw Materials Inventory
+    </h1>
+
+    <button (click)="showAddRawMaterialPopup = true">
+      + Add Raw Material
+    </button>
+
+  </div>
+
+  <!-- SEARCH -->
+
+  <div class="search-box">
+
+    <input
+      type="text"
+      placeholder="Search raw materials..."
+      [(ngModel)]="searchText"
+      (focus)="showSearchFilters = true"
+      (keyup)="searchRawMaterials()"
+    >
+
+    <div class="filter-dropdown" *ngIf="showSearchFilters">
+
+      <div class="filter-item" (click)="toggleFilter('Raw Material Name')">
+        <input type="checkbox" [checked]="selectedFilters.includes('Raw Material Name')">
+        Raw Material Name
+      </div>
+
+      <div class="filter-item" (click)="toggleFilter('Raw Material ID')">
+        <input type="checkbox" [checked]="selectedFilters.includes('Raw Material ID')">
+        Raw Material ID
+      </div>
+
+      <div class="filter-item" (click)="toggleFilter('Supplier Name')">
+        <input type="checkbox" [checked]="selectedFilters.includes('Supplier Name')">
+        Supplier Name
+      </div>
+
+      <div class="filter-item" (click)="toggleFilter('Supplier ID')">
+        <input type="checkbox" [checked]="selectedFilters.includes('Supplier ID')">
+        Supplier ID
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- RAW MATERIALS GRID -->
+
+  <div class="raw-materials-grid">
+
+    <div class="raw-material-card" *ngFor="let rawMaterial of rawMaterialsList">
+
+      <img [src]="rawMaterial.image" alt="raw-material">
+
+      <div class="raw-material-content">
+
+        <h2>{{ rawMaterial.rawMaterialName }}</h2>
+
+        <p>Raw Material ID: {{ rawMaterial.rawMaterialId }}</p>
+
+        <p>Quantity: {{ rawMaterial.quantity }}</p>
+
+        <span
+          [class.in-stock]="rawMaterial.stockStatus === 'In Stock'"
+          [class.low-stock]="rawMaterial.stockStatus === 'Low Stock'"
+        >
+          {{ rawMaterial.stockStatus }}
+        </span>
+
+        <button class="delete-btn" (click)="deleteRawMaterial(rawMaterial._id)">
+          Delete
+        </button>
+
+        <button class="edit-btn" (click)="editRawMaterial(rawMaterial)">
+          Edit
+        </button>
+
+        <button class="history-btn" (click)="openHistory(rawMaterial)">
+          View History
+        </button>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  <!-- ADD RAW MATERIAL POPUP -->
+
+  <div class="popup-overlay" *ngIf="showAddRawMaterialPopup">
+
+    <div class="popup-box">
+
+      <h2>Add Raw Material</h2>
+
+      <input type="text" placeholder="Raw Material Name" 
+      [(ngModel)]="rawMaterialName"
+      (keyup)="generateRawMaterialId()">
+
+      <input type="text" placeholder="Raw Material ID*" [(ngModel)]="rawMaterialId">
+      <p class="error">{{ rawMaterialIdError }}</p>
+
+      <input type="number" placeholder="Quantity*" [(ngModel)]="quantity" (keyup)="calculateTotalCost()">
+      <p class="error">{{ quantityError }}</p>
+
+      <input type="number" placeholder="Low Stock Limit" [(ngModel)]="lowStockLimit">
+
+      <input type="number" placeholder="Amount*" [(ngModel)]="amount" (keyup)="calculateTotalCost()">
+      <p class="error">{{ amountError }}</p>
+
+      <input type="text" placeholder="Supplier Name" [(ngModel)]="supplierName"
+       (keyup)="generateSupplierId()">
+
+      <input type="text" placeholder="Supplier ID*" [(ngModel)]="supplierId">
+      <p class="error">{{ supplierIdError }}</p>
+
+      <input type="number" placeholder="Total Cost" [value]="totalCost" readonly>
+
+      <input type="text" placeholder="Image URL" [(ngModel)]="image">
+
+      <button (click)="addRawMaterial()">Save Raw Material</button>
+
+      <button class="close-btn" (click)="showAddRawMaterialPopup = false">Close</button>
+
+    </div>
+
+  </div>
+
+  <!-- HISTORY POPUP -->
+
+  <div class="popup-overlay" *ngIf="showHistoryPopup">
+
+    <div class="popup-box">
+
+      <h2>Inventory History</h2>
+
+      <div class="history-item" *ngFor="let item of selectedRawMaterialHistory">
+        <p>Action: {{ item.action }}</p>
+        <p>Quantity: {{ item.quantity }}</p>
+        <p>Date: {{ item.date | date:'medium' }}</p>
+      </div>
+
+      <button class="close-btn" (click)="showHistoryPopup = false">Close</button>
+
+    </div>
+
+  </div>
+
+</div>

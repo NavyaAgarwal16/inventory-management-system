@@ -1,0 +1,471 @@
+<div class="dashboard-container">
+
+  <!-- SIDEBAR -->
+
+  <aside class="sidebar">
+
+    <div class="logo-section">
+
+      <div class="logo-placeholder">
+
+        LOGO
+
+      </div>
+
+      <h2>Inventory MS</h2>
+
+    </div>
+
+   <ul>
+
+  <li class="active" routerLink="/dashboard">
+    Dashboard
+  </li>
+
+  <li routerLink="/products">
+    Products
+  </li>
+
+  <li routerLink="/raw-materials">
+    Raw Materials
+    </li>
+
+    <li routerLink="/track-records">
+
+  Track Records
+
+</li>
+
+  <li>
+    Reports
+  </li>
+
+  <li (click)="logout()">
+    Logout
+  </li>
+
+</ul>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+
+  <main class="main-content">
+
+  <!-- HEADER -->
+
+  <div class="dashboard-header">
+
+    <h1>
+
+      Inventory Management System
+
+    </h1>
+
+    <button
+
+      class="admin-btn"
+
+    >
+
+      Admin
+
+    </button>
+
+  </div>
+
+  <!-- OVERVIEW CARDS -->
+
+  <div class="overview-cards">
+
+    <div class="overview-card">
+
+      <h3>
+
+        Total Products
+
+      </h3>
+
+      <p>
+
+        {{ totalProducts }}
+
+      </p>
+
+    </div>
+
+    <div class="overview-card">
+
+      <h3>
+
+        Total Stock Quantity
+
+      </h3>
+
+      <p>
+
+        {{ totalStockQuantity }}
+
+      </p>
+
+    </div>
+
+    <div class="overview-card">
+
+      <h3>
+
+        Manufacturing Cost
+
+      </h3>
+
+      <p>
+
+        ₹ {{ totalManufacturingCost }}
+
+      </p>
+
+    </div>
+
+    <div class="overview-card">
+
+      <h3>
+
+        Net Profit/Loss
+
+      </h3>
+
+      <p
+
+        [style.color]="
+
+          isNetProfit
+
+          ? 'green'
+
+          : 'red'
+
+        "
+
+      >
+
+        {{
+
+          isNetProfit
+
+          ? '+'
+
+          : '-'
+
+        }}
+
+        ₹
+
+        {{
+
+          getAbsoluteValue(
+
+            netProfitLoss
+
+          )
+
+        }}
+
+      </p>
+
+    </div>
+
+  </div>
+
+<!-- SMART ALERTS -->
+
+<div class="smart-alert-card">
+
+  <h2>
+
+    Smart Alerts
+
+  </h2>
+
+  <div class="alert-container">
+
+    <!-- LOW STOCK -->
+
+    <div
+
+      class="alert-item"
+
+      *ngIf="
+
+        lowStockProducts.length > 0
+
+      "
+
+    >
+
+      <h4>
+
+        ⚠ Low Stock Products
+
+      </h4>
+
+      <ul>
+
+        <li
+
+          *ngFor="
+
+            let product
+
+            of lowStockProducts
+
+          "
+
+        >
+
+          {{ product.productName }}stock is low.
+
+            (Qty:
+
+  {{ product.quantity }}
+
+
+  )
+
+
+        </li>
+
+      </ul>
+
+    </div>
+
+    <!-- HIGH LOSS -->
+
+    <div
+
+      class="alert-item loss-alert"
+
+      *ngIf="
+
+        highLossDispatches.length > 0
+
+      "
+
+    >
+
+      <h4>
+
+        ⚠ High Loss Dispatches
+
+      </h4>
+
+      <ul>
+
+        <li
+
+          *ngFor="
+
+            let dispatch
+
+            of highLossDispatches
+
+          "
+
+        >
+
+          {{ dispatch.productName }}
+
+          -
+
+          ₹{{ dispatch.profitLossAmount }}
+
+        </li>
+
+      </ul>
+
+    </div>
+
+  </div>
+
+  <!-- NO ALERT -->
+
+  <div
+
+    class="no-alert"
+
+    *ngIf="
+
+      lowStockProducts.length === 0
+
+      &&
+
+      highLossDispatches.length === 0
+
+    "
+
+  >
+
+    ✅ No Critical Alerts
+
+  </div>
+
+</div>
+
+<!-- RECENT ACTIVITY -->
+
+<div class="activity-table-card">
+
+  <h2>
+
+    Recent Activities
+
+  </h2>
+
+  <table>
+
+    <thead>
+
+      <tr>
+
+        <th>Action</th>
+
+        <th>Product</th>
+
+        <th>Quantity</th>
+
+        <th>Date</th>
+
+      </tr>
+
+    </thead>
+
+    <tbody>
+
+      <tr
+
+        *ngFor="
+
+          let activity
+
+          of activityLogs
+
+        "
+
+      >
+
+        <td>
+
+          {{ activity.action }}
+
+        </td>
+
+        <td>
+
+          {{ activity.productName }}
+
+        </td>
+
+        <td>
+
+          {{ activity.quantity }}
+
+        </td>
+
+        <td>
+
+          {{
+
+            activity.date
+
+            | date:'short'
+
+          }}
+
+        </td>
+
+      </tr>
+
+    </tbody>
+
+  </table>
+
+</div>
+
+
+  <!-- PRODUCT ANALYTICS -->
+
+  <div class="analytics-section">
+
+    <div
+
+      class="analytics-header"
+
+      (click)="toggleProductAnalytics()"
+
+    >
+
+      <h2>
+
+        Product Analytics
+
+      </h2>
+
+      <span>
+
+        {{
+
+          showProductAnalytics
+
+          ? '▲'
+
+          : '▼'
+
+        }}
+
+      </span>
+
+    </div>
+
+    <div
+
+      *ngIf="showProductAnalytics"
+
+      class="analytics-content"
+
+    >
+
+      <div class="graph-card">
+
+        <h2>
+
+          Manufactured vs Dispatched
+
+        </h2>
+
+        <canvas
+
+          *ngIf="typeofWindow"
+
+          baseChart
+
+          [data]="barChartData"
+
+          [options]="barChartOptions"
+
+          [type]="barChartType"
+
+        >
+
+        </canvas>
+
+      </div>
+
+    </div>
+
+  </div>
+
+  </main>
+
+</div>
+
+
+
